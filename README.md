@@ -1,2 +1,5 @@
-# shaders
-Collection of GLSL Shaders
+```Shell
+npm i
+
+npm run dev
+```
