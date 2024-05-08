@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
+  trailingSlash: true,
   webpack: (config, options) => {
     config.module.rules.push({
       test: /\.vert/,
