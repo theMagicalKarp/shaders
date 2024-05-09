@@ -137,10 +137,6 @@ vec3 norm(vec3 p) {
   return normalize(n);
 }
 
-vec3 palette( float t,vec3 a, vec3 b, vec3 c, vec3 d ) {
-    return a + b*cos( 6.28318*(c*t+d) );
-}
-
 vec2 march(vec3 rayOrigin, vec3 rayDirection) {
   float distance = 0.0;
   float material = MAT_0;
