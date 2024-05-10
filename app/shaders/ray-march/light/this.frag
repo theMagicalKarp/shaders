@@ -7,9 +7,10 @@ uniform vec3 uMouse;
 #define TAU 6.283185
 #define PI 3.141592
 #define MAX_RAY_STEPS 80
-#define MAX_DISTANCE 400.0
+#define MAX_DISTANCE 100.0
 #define SURF_DIST 0.01
 #define REFLECTION_BOUNCES 3
+#define OUT_OF_BOUNDS 50.0
 
 const float MAT_0 = 0.0;
 const float MAT_1 = 1.0;
@@ -138,22 +139,27 @@ vec3 norm(vec3 p) {
 }
 
 vec2 march(vec3 rayOrigin, vec3 rayDirection) {
-  float distance = 0.0;
+  float marchDistance = 0.0;
   float material = MAT_0;
 
   for (int i=0; i < MAX_RAY_STEPS; i++) {
-    vec3 position = rayOrigin + rayDirection * distance;
+    vec3 position = rayOrigin + rayDirection * marchDistance;
+
+    if (abs(distance(vec3(0.0), position)) > OUT_OF_BOUNDS) {
+        material = MAT_0;
+        break;
+    }
 
     vec2 mapOutput = map(position);
-    distance += mapOutput.x;
+    marchDistance += mapOutput.x;
 
-    if (abs(mapOutput.x) < SURF_DIST || distance > MAX_DISTANCE) {
+    if (abs(mapOutput.x) < SURF_DIST || marchDistance > MAX_DISTANCE) {
       material = mapOutput.y;
       break;
     }
   }
 
-  return vec2(distance, material);
+  return vec2(marchDistance, material);
 }
 
 vec3 GetRayDirection(vec2 uv, vec3 p, vec3 l, float z) {
@@ -228,7 +234,7 @@ vec3 Render(inout vec3 rayOrigin, inout vec3 rayDirection, inout vec3 reflection
 }
 
 void main() {
-  vec2 uv = (gl_FragCoord.xy - resolution.xy) / resolution.y;
+  vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / resolution.y;
   vec2 mouse = uMouse.xy / resolution.xy;
 
   vec3 rayOrigin = vec3(0.0, 6.0, -3.0) * uMouse.z;
