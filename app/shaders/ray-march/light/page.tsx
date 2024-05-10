@@ -4,6 +4,6 @@ import frag from "./this.frag";
 import vert from "./this.vert";
 
 export default async function Page() {
-  const pixelDensity = 2;
+  const pixelDensity = 1;
   return <ShaderCavnas shader={{ vert, frag, pixelDensity }} />;
 }
