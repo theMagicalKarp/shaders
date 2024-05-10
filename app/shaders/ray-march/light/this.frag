@@ -189,7 +189,7 @@ vec3 Render(inout vec3 rayOrigin, inout vec3 rayDirection, inout vec3 reflection
 
   if (material == MAT_1) {
     diffuse = max(diffuse, 0.2);
-    color = vec3(0.0, 1.0, 0.0);
+    color = vec3(0.0, 0.0, 1.0);
   }
 
   if (material == MAT_2) {
