@@ -11,6 +11,7 @@
     "format-check": "prettier --check \"**/*.{js,ts,tsx}\""
   },
   "dependencies": {
+    "is-mobile": "^4.0.0",
     "next": "14.2.3",
     "p5": "^1.9.3",
     "react": "^18",

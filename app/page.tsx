@@ -8,6 +8,12 @@ export default function Page() {
         "Demonstrates ray marching with lighting which interacts with reflections and shadows.",
       link: "/shaders/ray-march/light",
     },
+    {
+      title: { name: "Ray Marching", accent: "Refraction" },
+      description:
+        "Demonstrates ray marching to bend light using refraction, aberration, and fresnel reflectance.",
+      link: "/shaders/ray-march/refraction",
+    },
   ];
 
   return (
