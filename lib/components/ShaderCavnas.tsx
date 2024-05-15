@@ -3,14 +3,31 @@
 import React, { useEffect, useRef } from "react";
 import type p5 from "p5";
 import Stats from "stats.js";
+import isMobile from "is-mobile";
 
-interface Shader {
+export interface ImageSource {
+  default: string;
+  mobile?: string;
+}
+
+export interface ShaderTexture {
+  src: ImageSource;
+  uniform: string;
+}
+
+export interface Shader {
   vert: string;
   frag: string;
   pixelDensity: number;
+  textures?: ShaderTexture[];
 }
 
-const sketch = ({ vert, frag, pixelDensity }: Shader, stats: Stats) => {
+const sketch = (
+  { vert, frag, pixelDensity, textures }: Shader,
+  stats: Stats,
+) => {
+  const onMobile = isMobile();
+
   return (p: p5) => {
     let seconds = 0.0;
     let last = new Date().getTime();
@@ -23,9 +40,17 @@ const sketch = ({ vert, frag, pixelDensity }: Shader, stats: Stats) => {
     const lastMouse: [number, number, number] = [0.0, 0.0, 1.2];
     let paused = false;
     let shader: p5.Shader;
+    const loadedTextures: [string, p5.Image][] = [];
 
     p.preload = () => {
       shader = p.createShader(vert, frag);
+
+      for (const { src, uniform } of textures || []) {
+        const img = p.loadImage(
+          onMobile && src.mobile ? src.mobile : src.default,
+        );
+        loadedTextures.push([uniform, img]);
+      }
     };
 
     p.keyPressed = () => {
@@ -65,11 +90,15 @@ const sketch = ({ vert, frag, pixelDensity }: Shader, stats: Stats) => {
       p.noStroke();
       p.pixelDensity(pixelDensity);
       p.frameRate(60);
+      p.textureWrap(p.CLAMP, p.CLAMP);
     };
 
     p.draw = () => {
       stats.begin();
       p.shader(shader);
+      for (const [unfiorm, image] of loadedTextures) {
+        shader.setUniform(unfiorm, image);
+      }
       shader.setUniform("resolution", [p.windowWidth, p.windowHeight]);
       shader.setUniform("uMouse", mouse);
 
