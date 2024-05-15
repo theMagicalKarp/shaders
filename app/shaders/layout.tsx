@@ -1,3 +1,15 @@
+// Prevent page from scrolling
+const INLINE_STYLE = `
+body {
+  overflow: hidden;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
+`;
+
 export default function Layout({
   children,
 }: Readonly<{
@@ -5,7 +17,10 @@ export default function Layout({
 }>) {
   return (
     <>
-      <div className="main-container">{children}</div>
+      <style>{INLINE_STYLE}</style>
+      <div className="absolute bottom-0 left-0 right-0 bottom-0">
+        {children}
+      </div>
     </>
   );
 }
