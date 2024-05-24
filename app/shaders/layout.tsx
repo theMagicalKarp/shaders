@@ -1,10 +1,11 @@
 // Prevent page from scrolling
 const INLINE_STYLE = `
-body {
-  overflow: hidden;
+* {
+margin: 0;
+padding: 0;
 }
 
-html, body {
+html, body, #root {
   width: 100%;
   height: 100%;
 }
@@ -18,9 +19,7 @@ export default function Layout({
   return (
     <>
       <style>{INLINE_STYLE}</style>
-      <div className="absolute bottom-0 left-0 right-0 bottom-0">
-        {children}
-      </div>
+      {children}
     </>
   );
 }

@@ -1,170 +1,132 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import type p5 from "p5";
-import Stats from "stats.js";
+import React, { useRef, useMemo } from "react";
+
+import { OrbitControls, Stats } from "@react-three/drei";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import {
+  Mesh,
+  ShaderMaterial,
+  TextureLoader,
+  RepeatWrapping,
+  NearestFilter,
+} from "three";
+
 import isMobile from "is-mobile";
 
-export interface ImageSource {
-  default: string;
-  mobile?: string;
+export interface Shader {
+  vertex: string;
+  fragment: string;
 }
 
-export interface ShaderTexture {
-  src: ImageSource;
+export interface Camera {
+  position: [number, number, number];
+}
+
+export interface Controls {
+  maxDistance: number;
+  minDistance: number;
+}
+
+export interface TextureUniform {
+  type: "texture";
+  src: {
+    default: string;
+    mobile: string;
+  };
   uniform: string;
 }
 
-export interface Shader {
-  vert: string;
-  frag: string;
-  pixelDensity: number;
-  textures?: ShaderTexture[];
+const IsTextureUniform = (u: any): u is TextureUniform => u.type === "texture";
+
+export type Uniform = TextureUniform;
+
+interface FragmentProps {
+  shader: Shader;
+  uniforms: Uniform[];
 }
 
-const sketch = (
-  { vert, frag, pixelDensity, textures }: Shader,
-  stats: Stats,
-) => {
+const Fragment = ({ shader, uniforms }: FragmentProps) => {
   const onMobile = isMobile();
 
-  return (p: p5) => {
-    let seconds = 0.0;
-    let last = new Date().getTime();
-    let delta = 0.0;
-    const mouse: [number, number, number] = [
-      p.windowWidth / 2,
-      p.windowHeight / 2,
-      1.2,
+  const mesh = useRef<Mesh>(null!);
+  const material = useRef<ShaderMaterial>(null!);
+
+  const { vertex, fragment } = shader;
+  const textureUniforms = uniforms.filter(IsTextureUniform);
+
+  const textures = useLoader(
+    TextureLoader,
+    textureUniforms.map((u) => (onMobile ? u.src.mobile : u.src.default)),
+  );
+
+  for (const texture of textures) {
+    texture.flipY = false;
+    texture.wrapS = RepeatWrapping;
+    texture.wrapT = RepeatWrapping;
+    texture.minFilter = NearestFilter;
+  }
+
+  const shaderUniforms = useMemo(() => {
+    type Entry = [string, { value: any }];
+
+    const entries: Entry[] = [
+      ["uSeconds", { value: 0.0 }],
+      ["uResolution", { value: [0.0, 0.0] }],
     ];
-    const lastMouse: [number, number, number] = [0.0, 0.0, 1.2];
-    let paused = false;
-    let shader: p5.Shader;
-    const loadedTextures: [string, p5.Image][] = [];
 
-    p.preload = () => {
-      shader = p.createShader(vert, frag);
+    const textureEntries: Entry[] = textureUniforms.map((u, i): Entry => {
+      return [u.uniform, { value: textures[i] }];
+    });
 
-      for (const { src, uniform } of textures || []) {
-        const img = p.loadImage(
-          onMobile && src.mobile ? src.mobile : src.default,
-        );
-        loadedTextures.push([uniform, img]);
-      }
-    };
+    return Object.fromEntries(entries.concat(textureEntries));
+  }, [textures, textureUniforms]);
 
-    p.keyPressed = () => {
-      if (p.keyCode === 32) {
-        paused = !paused;
-        if (!paused) {
-          last = new Date().getTime();
-        }
-      }
-    };
+  useFrame((state) => {
+    const { clock, size } = state;
+    const { width, height } = size;
 
-    p.touchStarted = () => {
-      lastMouse[0] = p.mouseX;
-      lastMouse[1] = p.mouseY;
-    };
+    material.current.uniforms.uResolution.value[0] = width;
+    material.current.uniforms.uResolution.value[1] = height;
+    material.current.uniforms.uSeconds.value = clock.getElapsedTime();
+  });
 
-    p.mousePressed = () => {
-      lastMouse[0] = p.mouseX;
-      lastMouse[1] = p.mouseY;
-    };
-
-    p.mouseDragged = (e) => {
-      mouse[0] += (lastMouse[0] - p.mouseX) * 1.2;
-      mouse[1] += (lastMouse[1] - p.mouseY) * 1.2;
-      lastMouse[0] = p.mouseX;
-      lastMouse[1] = p.mouseY;
-    };
-
-    p.mouseWheel = (event: any) => {
-      const delta = event?.delta || 0.0;
-      mouse[2] += delta * 0.01;
-      mouse[2] = Math.min(Math.max(mouse[2], 1.0), 6.0);
-    };
-
-    p.setup = () => {
-      p.createCanvas(p.windowWidth, p.windowHeight, p.WEBGL);
-      p.noStroke();
-      p.pixelDensity(pixelDensity);
-      p.frameRate(60);
-      p.textureWrap(p.CLAMP, p.CLAMP);
-    };
-
-    p.draw = () => {
-      stats.begin();
-      p.shader(shader);
-      for (const [unfiorm, image] of loadedTextures) {
-        shader.setUniform(unfiorm, image);
-      }
-      shader.setUniform("resolution", [p.windowWidth, p.windowHeight]);
-      shader.setUniform("uMouse", mouse);
-
-      if (!paused) {
-        const now = new Date().getTime();
-        delta = now - last;
-        seconds += delta * 0.001;
-        last = now;
-      }
-
-      shader.setUniform("uSeconds", seconds);
-      p.rect(0.0, 0.0, p.width, p.height);
-      stats.end();
-    };
-
-    p.windowResized = () => {
-      p.resizeCanvas(p.windowWidth, p.windowHeight);
-
-      [mouse[0], mouse[1], mouse[2]] = [
-        p.windowWidth / 2,
-        p.windowHeight / 2,
-        1.2,
-      ];
-      [lastMouse[0], lastMouse[1], lastMouse[2]] = [0.0, 0.0, 1.2];
-    };
-  };
+  return (
+    <mesh ref={mesh} position={[0, 0, 0]}>
+      <planeGeometry />
+      <shaderMaterial
+        ref={material}
+        fragmentShader={fragment}
+        vertexShader={vertex}
+        uniforms={shaderUniforms}
+      />
+    </mesh>
+  );
 };
 
 interface Props {
   shader: Shader;
+  camera: Camera;
+  dpr: number;
+  controls: Controls;
+  uniforms: Uniform[];
 }
 
-export default function ShaderCavnas({ shader }: Props) {
-  const parentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const stats = new Stats();
-    stats.showPanel(0);
-    document.body.appendChild(stats.dom);
-
-    let instance: p5 | undefined;
-    const setup = async () => {
-      try {
-        // p5 cannot be imported at the top level
-        const p5 = (await import("p5")).default;
-        instance = new p5(
-          sketch(shader, stats),
-          parentRef.current || undefined,
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    const setupPromise = setup();
-
-    const cleanup = async () => {
-      await setupPromise;
-      instance?.remove();
-      stats?.dom.remove();
-    };
-
-    return () => {
-      cleanup();
-    };
-  }, [shader]);
-
-  return <div ref={parentRef}></div>;
+export default function ShaderCavnas({
+  shader,
+  camera,
+  dpr,
+  controls,
+  uniforms,
+}: Props) {
+  return (
+    <Canvas flat linear camera={camera} dpr={dpr}>
+      <Stats />
+      <Fragment shader={shader} uniforms={uniforms} />
+      <OrbitControls
+        maxDistance={controls.maxDistance}
+        minDistance={controls.minDistance}
+      />
+    </Canvas>
+  );
 }

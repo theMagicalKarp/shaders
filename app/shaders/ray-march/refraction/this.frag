@@ -2,11 +2,9 @@ precision highp float;
 precision highp sampler2D;
 
 uniform float uSeconds;
-uniform vec2 resolution;
-uniform vec3 uMouse;
+uniform vec2 uResolution;
 uniform sampler2D uTexture;
 
-#define TAU 6.283185
 #define PI 3.141592
 #define MAX_RAY_STEPS 100
 #define MAX_DISTANCE 100.0
@@ -38,13 +36,13 @@ float sdDiamond(vec3 m) {
   const vec2 origin = vec2(3.0,0);
   const vec2 normal1 = normalize(vec2(h1,-3.0));
   const vec2 normal2 = normalize(vec2(h2,3.0));
-  
+
   float d1 = dot(p-origin, normal1);
   float d2 = dot(p-origin, normal2);
-  
+
   float d = max(d1, d2);
   float vdist = max(m.y - h2*0.4, -h1-m.y);
-  
+
   return max(d, vdist);
 }
 
@@ -159,20 +157,15 @@ vec3 Render(vec3 rayOrigin, vec3 rayDirection) {
 }
 
 void main() {
-  vec2 uv = (gl_FragCoord.xy * 0.5 - resolution.xy) / resolution.y;
-  vec2 mouse = uMouse.xy / resolution.xy;
+  vec2 uv = (gl_FragCoord.xy * 0.5 - uResolution.xy) / uResolution.y;
 
-  vec3 rayOrigin = vec3(0.0, 6.0, -3.0) * uMouse.z;
-  rayOrigin.yz *= rot2D(-mouse.y*PI+1.);
-  rayOrigin.xz *= rot2D(-mouse.x*TAU);
-  vec3 rayDirection = GetRayDirection(uv, rayOrigin, vec3(0.0, 1.0, 0.0), 1.0);
-
+  vec3 rayOrigin = cameraPosition;
+  vec3 rayDirection = GetRayDirection(uv, rayOrigin, vec3(0.0, 1.0, 0.0),2.0);
   vec3 color = Render(rayOrigin, rayDirection);
 
-  
   // if screen is wider than tall, adjust uv for aspect ratio for vignette
-  if (resolution.x > resolution.y) {
-    uv = (gl_FragCoord.xy * 0.5 - resolution.xy) / resolution.x;
+  if (uResolution.x > uResolution.y) {
+    uv = (gl_FragCoord.xy * 0.5 - uResolution.xy) / uResolution.x;
   }
 
   float vignetteRadius = 1.0;
