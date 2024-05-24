@@ -1,11 +1,8 @@
 precision mediump float;
 
 uniform float uSeconds;
-uniform vec2 resolution;
-uniform vec3 uMouse;
+uniform vec2 uResolution;
 
-#define TAU 6.283185
-#define PI 3.141592
 #define MAX_RAY_STEPS 80
 #define MAX_DISTANCE 100.0
 #define SURF_DIST 0.01
@@ -234,12 +231,9 @@ vec3 Render(inout vec3 rayOrigin, inout vec3 rayDirection, inout vec3 reflection
 }
 
 void main() {
-  vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / resolution.y;
-  vec2 mouse = uMouse.xy / resolution.xy;
+  vec2 uv = (gl_FragCoord.xy * 2.0 - uResolution.xy) / uResolution.y;
 
-  vec3 rayOrigin = vec3(0.0, 6.0, -3.0) * uMouse.z;
-  rayOrigin.yz *= rot2D(-mouse.y*PI+1.);
-  rayOrigin.xz *= rot2D(-mouse.x*TAU);
+  vec3 rayOrigin = cameraPosition;
   rayOrigin.y = max(rayOrigin.y, -1.0);
 
   vec3 rayDirection = GetRayDirection(uv, rayOrigin, vec3(0.0, 1.0, 0.0),2.0);

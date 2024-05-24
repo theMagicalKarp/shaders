@@ -1,12 +1,28 @@
-import ShaderCavnas, { ShaderTexture } from "@/lib/components/ShaderCavnas";
+import ShaderCavnas, {
+  Camera,
+  Controls,
+  Shader,
+  Uniform,
+} from "@/lib/components/ShaderCavnas";
 
-import frag from "./this.frag";
-import vert from "./this.vert";
+import fragment from "./this.frag";
+import vertex from "./this.vert";
 
 export default async function Page() {
-  const pixelDensity = 4;
-  const textures: ShaderTexture[] = [
+  const camera: Camera = {
+    position: [0.0, 6.0, 12.0],
+  };
+
+  const controls: Controls = {
+    maxDistance: 40.0,
+    minDistance: 8.0,
+  };
+
+  const shader: Shader = { vertex, fragment };
+
+  const uniforms: Uniform[] = [
     {
+      type: "texture",
       src: {
         default: "/assets/skybox/watershed/default.jpg",
         mobile: "/assets/skybox/watershed/sm.jpg",
@@ -15,5 +31,13 @@ export default async function Page() {
     },
   ];
 
-  return <ShaderCavnas shader={{ vert, frag, pixelDensity, textures }} />;
+  return (
+    <ShaderCavnas
+      shader={shader}
+      controls={controls}
+      camera={camera}
+      uniforms={uniforms}
+      dpr={4}
+    />
+  );
 }
