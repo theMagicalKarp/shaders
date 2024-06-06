@@ -1,4 +1,3 @@
-
 precision mediump float;
 
 uniform float zLevel;

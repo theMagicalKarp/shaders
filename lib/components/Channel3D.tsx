@@ -15,6 +15,7 @@ import {
   Scene,
   Data3DTexture,
   HalfFloatType,
+  UnsignedByteType,
   RGBAFormat,
   ShaderMaterial,
   WebGLRenderer,
@@ -53,7 +54,10 @@ const Channel3D = forwardRef(function Channel(
   const camera = useRef(null!);
 
   const { vertex, fragment } = shader;
-  const fbo = useFBO(width, height, {});
+  const fbo = useFBO(width, height, {
+    format: RGBAFormat,
+    type: UnsignedByteType,
+  });
 
   const shaderUniforms = useMemo(() => {
     return {
@@ -67,8 +71,8 @@ const Channel3D = forwardRef(function Channel(
       return texture;
     }
 
-    const data = new Uint16Array(width * height * depth * 4);
-    const pixelBuffer = new Uint16Array(width * height * 4);
+    const data = new Uint8Array(width * height * depth * 4);
+    const pixelBuffer = new Uint8Array(width * height * 4);
 
     for (let i = 0; i < depth; i++) {
       material.current.uniforms.zLevel.value = i / 4.0;
@@ -81,14 +85,13 @@ const Channel3D = forwardRef(function Channel(
 
     let newTexture = new Data3DTexture(data, width, height, depth);
     newTexture.format = RGBAFormat;
-    newTexture.type = HalfFloatType;
+    newTexture.type = UnsignedByteType;
 
     newTexture.minFilter = minFilter;
     newTexture.magFilter = magFilter;
     newTexture.wrapS = wrapS;
     newTexture.wrapT = wrapT;
     newTexture.wrapR = wrapR;
-
     newTexture.needsUpdate = true;
 
     gl.setRenderTarget(null);
