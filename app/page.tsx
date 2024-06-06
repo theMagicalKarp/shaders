@@ -14,6 +14,15 @@ export default function Page() {
         "Demonstrates ray marching to bend light using refraction, aberration, and fresnel reflectance.",
       link: "/shaders/ray-march/refraction",
     },
+    {
+      title: { name: "Noise", accent: "Clouds" },
+      description: [
+        "This renders realistic clouds using various noise",
+        "techniques, including 3D Perlin-Worley and Blue Noise, while simulating light",
+        "scattering with Dual-Lobe Henyey-Greenstein phase functions and Beer's-Powder Approximation.",
+      ].join(" "),
+      link: "/shaders/noise/clouds",
+    },
   ];
 
   return (

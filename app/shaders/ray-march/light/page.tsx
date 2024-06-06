@@ -2,8 +2,9 @@ import ShaderCavnas, {
   Camera,
   Controls,
   Shader,
-  Uniform,
 } from "@/lib/components/ShaderCavnas";
+
+import { Uniform } from "@/lib/uniforms";
 
 import fragment from "./this.frag";
 import vertex from "./this.vert";
