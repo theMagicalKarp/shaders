@@ -2,35 +2,47 @@
   "name": "shaders",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=26"
+  },
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "format": "prettier --write \"**/*.{js,ts,tsx}\"",
     "format-check": "prettier --check \"**/*.{js,ts,tsx}\""
   },
   "dependencies": {
-    "@react-three/drei": "^9.105.6",
-    "@react-three/fiber": "^8.16.6",
-    "@types/three": "^0.164.1",
-    "is-mobile": "^4.0.0",
-    "leva": "^0.9.35",
-    "next": "14.2.3",
-    "react": "^18",
-    "react-dom": "^18",
-    "three": "^0.164.1"
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
+    "@types/three": "^0.185.1",
+    "is-mobile": "^5.0.0",
+    "leva": "^0.10.1",
+    "next": "16.2.12",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "three": "^0.185.1"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "daisyui": "^4.10.5",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.3",
-    "postcss": "^8",
-    "prettier": "^3.2.5",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "daisyui": "^5.7.4",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.12",
+    "postcss": "^8.5.23",
+    "prettier": "^3.9.6",
+    "raw-loader": "^4.0.2",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6"
+  },
+  "overrides": {
+    "postcss": "$postcss",
+    "sharp": "^0.35.3"
+  },
+  "allowScripts": {
+    "unrs-resolver@1.12.2": true
   }
 }

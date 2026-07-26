@@ -13,7 +13,7 @@ export default function ShaderCard({
 }: ShaderCardProps) {
   return (
     <Link href={link}>
-      <div className="card card-compact card-side bg-neutral text-neutral-content max-h-48 hover:border-primary border-solid border-2 border-neutral">
+      <div className="card card-sm card-side bg-neutral text-neutral-content max-h-48 hover:border-primary border-solid border-2 border-neutral">
         <div className="card-body">
           <h2 className="card-title font-bold text-2xl">
             {title.name} <span className="text-base-content/60">/</span>{" "}

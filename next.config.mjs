@@ -1,17 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  output: "export",
   trailingSlash: true,
-  webpack: (config, options) => {
-    config.module.rules.push({
-      test: /\.vert/,
-      type: "asset/source",
-    });
-    config.module.rules.push({
-      test: /\.frag/,
-      type: "asset/source",
-    });
-    return config
+  turbopack: {
+    rules: {
+      // Turbopack's built-in `type: "raw"` does not expose a default export,
+      // so shader imports resolve to undefined. raw-loader reproduces the
+      // `asset/source` behaviour the old webpack config provided.
+      "*.vert": { loaders: ["raw-loader"], as: "*.js" },
+      "*.frag": { loaders: ["raw-loader"], as: "*.js" },
+    },
   },
 };
 
