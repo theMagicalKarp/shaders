@@ -1,0 +1,31 @@
+name: 🧹 Cleanup
+
+on:
+  # Runs an hour after the weekly rebuild in build.yaml
+  schedule:
+    - cron: "0 7 * * 1"
+
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Log what would be deleted without deleting it"
+        type: boolean
+        default: true
+
+permissions:
+  packages: write
+
+jobs:
+  delete-untagged-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete untagged images older than 4 weeks
+        uses: snok/container-retention-policy@d3bdcf5ce9b05f685154e4a16c39233b245e3d53 # v3.1.0
+        with:
+          account: user
+          token: ${{ secrets.GITHUB_TOKEN }}
+          image-names: shaders
+          tag-selection: untagged
+          cut-off: 4w
+          keep-n-most-recent: 5
+          dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
